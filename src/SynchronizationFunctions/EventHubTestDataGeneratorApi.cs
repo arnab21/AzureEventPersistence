@@ -44,7 +44,7 @@ namespace AzureEventPersistence.SynchronizationFunctions
                     var messageTuple = GenerateSampleMessages(i, quickStartSchema);                    
                     var sampleEventData = new EventData(messageTuple.Item2);
                     sampleEventData.Properties[Constants.Key_Identifier] = messageTuple.Item1;
-                    log.LogTrace($"Building message: {i}, OrderId: {messageTuple.Item1}");
+                    log.LogInformation($"Building message: {i}, OrderId: {messageTuple.Item1}");
 
 
                     //See: https://github.com/Azure/azure-webjobs-sdk/issues/1643. No way yet to use the PartitionKey binding via Azure FnApps
