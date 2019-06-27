@@ -29,9 +29,8 @@ namespace AzureEventPersistence.SynchronizationFunctions
             int count = 0;
             foreach (var doc in documents)
             {
-                log.LogInformation("Document {count} Id " + doc.Id);
-                log.LogInformation("Document {count} Etag " + doc.ETag);
-                log.LogInformation("Document {count} content " + doc.ToString());
+                log.LogInformation($"Document {count} " + doc.ToString());
+                log.LogInformation($"Document {count} content " + doc.GetPropertyValue<string>("content"));
 
                 count++;
             }
@@ -39,7 +38,13 @@ namespace AzureEventPersistence.SynchronizationFunctions
         }
 
 
-    }
+		private static void BuildSampleorder(string jsonContent, ILogger log)
+		{
+
+
+		}
+
+	}
 
 
 }
