@@ -1,8 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AzureEventPersistence.EventModels;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 
 namespace AzureEventPersistence.SynchronizationFunctions
 {
@@ -30,7 +36,10 @@ namespace AzureEventPersistence.SynchronizationFunctions
             foreach (var doc in documents)
             {
                 log.LogInformation($"Document {count} " + doc.ToString());
-                log.LogInformation($"Document {count} content " + doc.GetPropertyValue<string>("content"));
+                var contentBytes = Convert.FromBase64String(doc.GetPropertyValue<string>("content"));
+                var sampleOrder = DeserializeContentToSampleorder(contentBytes);
+                var lineItems = string.Join(", ", sampleOrder.LineItems.Select(kv => kv.Key + " = " + kv.Value).ToArray());
+                log.LogInformation($"OrderId: {sampleOrder.orderId}, Amount: {sampleOrder.Amount}, Name: {sampleOrder.CustomerName}, LineItems: {lineItems}");
 
                 count++;
             }
@@ -38,11 +47,18 @@ namespace AzureEventPersistence.SynchronizationFunctions
         }
 
 
-		private static void BuildSampleorder(string jsonContent, ILogger log)
+		private static SampleOrder DeserializeContentToSampleorder(byte[] contentBytes)
 		{
-
-
-		}
+            SampleOrder result;
+            MemoryStream ms = new MemoryStream(contentBytes);
+            using (BsonReader reader = new BsonReader(ms))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                result = serializer.Deserialize<SampleOrder>(reader);
+            }
+            ms.Dispose();
+            return result;
+        }
 
 	}
 
