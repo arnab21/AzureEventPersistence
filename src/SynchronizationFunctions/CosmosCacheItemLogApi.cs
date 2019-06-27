@@ -33,17 +33,14 @@ namespace AzureEventPersistence.SynchronizationFunctions
 
         private static void LogCosmosCacheMessages(IReadOnlyList<Document> documents, ILogger log)
         {
-            int count = 0;
 
             Parallel.ForEach(documents, (doc) =>
             {
-                log.LogInformation($"Document {count} " + doc.ToString());
+                log.LogInformation($"CacheContent: {doc.ToString()}");
                 var contentBytes = Convert.FromBase64String(doc.GetPropertyValue<string>("content"));
                 var sampleOrder = DeserializeContentToSampleorder(contentBytes);
                 var lineItems = string.Join(", ", sampleOrder.LineItems.Select(kv => kv.Key + " = " + kv.Value).ToArray());
                 log.LogInformation($"OrderId: {sampleOrder.orderId}, Amount: {sampleOrder.Amount}, Name: {sampleOrder.CustomerName}, LineItems: {lineItems}");
-
-                count++;
             });
 
         }
