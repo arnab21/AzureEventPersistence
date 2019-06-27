@@ -18,7 +18,7 @@ namespace AzureEventPersistence.SynchronizationFunctions
             [CosmosDB(databaseName: "CosmosCache", collectionName: "CacheItems", ConnectionStringSetting = "CosmosCacheItemDbConnString")] IAsyncCollector<CosmosDbCacheItem> cacheItemsToCosmosDb,
             ILogger log)
         {
-            foreach (var eventData in eventHubMessages)
+            Parallel.ForEach(eventHubMessages, async (eventData) =>
             {
                 var keyId = eventData.Properties[Constants.Key_Identifier];
                 byte[] data = eventData.Body.AsSpan<byte>(eventData.Body.Offset, eventData.Body.Count).ToArray();
@@ -30,7 +30,7 @@ namespace AzureEventPersistence.SynchronizationFunctions
                 log.LogInformation($"Saving event data to CosmosCache. : MessageReceivedTimeUtc: '{eventData.SystemProperties.EnqueuedTimeUtc}', OrderId: '{cacheDocument.Id}', cacheContent: '{cacheDocument.Content}' ");
 
                 await cacheItemsToCosmosDb.AddAsync(cacheDocument);
-            }
+            });
         }
 
         private static SampleOrder ReadSampleMessages(ArraySegment<byte> messageData)
