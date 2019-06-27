@@ -10,7 +10,7 @@ namespace AzureEventPersistence.EventModels
         [JsonProperty(PropertyName = "orderId")]
         public string orderId { get; set; }
 
-        [JsonProperty(PropertyName = "customerPame")]
+        [JsonProperty(PropertyName = "customerName")]
         public string CustomerName { get; set; }
 
         [JsonProperty(PropertyName = "amount")]
