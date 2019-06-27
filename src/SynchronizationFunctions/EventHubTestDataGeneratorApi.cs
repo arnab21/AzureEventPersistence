@@ -39,9 +39,9 @@ namespace AzureEventPersistence.SynchronizationFunctions
             try
             {
                 // Creates a collection of 'count' EventData messages to be sent to output event hub.
-                for (var i = 0; i < count; i++)
+                Parallel.For(0, count, async i =>
                 {
-                    var messageTuple = GenerateSampleMessages(i, quickStartSchema);                    
+                    var messageTuple = GenerateSampleMessages(i, quickStartSchema);
                     var sampleEventData = new EventData(messageTuple.Item2);
                     sampleEventData.Properties[Constants.Key_Identifier] = messageTuple.Item1;
                     log.LogInformation($"Building message: {i}, OrderId: {messageTuple.Item1}");
@@ -49,7 +49,7 @@ namespace AzureEventPersistence.SynchronizationFunctions
 
                     //See: https://github.com/Azure/azure-webjobs-sdk/issues/1643. No way yet to use the PartitionKey binding via Azure FnApps
                     await outputEvents.AddAsync(sampleEventData);
-                }                
+                });                
             }
             catch (Exception exception)
             {

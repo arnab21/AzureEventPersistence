@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AzureEventPersistence.EventModels;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.WebJobs;
@@ -33,7 +34,8 @@ namespace AzureEventPersistence.SynchronizationFunctions
         private static void LogCosmosCacheMessages(IReadOnlyList<Document> documents, ILogger log)
         {
             int count = 0;
-            foreach (var doc in documents)
+
+            Parallel.ForEach(documents, (doc) =>
             {
                 log.LogInformation($"Document {count} " + doc.ToString());
                 var contentBytes = Convert.FromBase64String(doc.GetPropertyValue<string>("content"));
@@ -42,7 +44,7 @@ namespace AzureEventPersistence.SynchronizationFunctions
                 log.LogInformation($"OrderId: {sampleOrder.orderId}, Amount: {sampleOrder.Amount}, Name: {sampleOrder.CustomerName}, LineItems: {lineItems}");
 
                 count++;
-            }
+            });
 
         }
 
